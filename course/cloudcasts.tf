@@ -16,7 +16,8 @@ data "aws_ami" "cloudcasts_web" {
 
   filter {
     name   = "name"
-    values = ["cloudcasts-${var.infra_env}-*"]
+    # values = ["cloudcasts-${local.infra_env}-*"]
+    values = ["cloudcasts-staging-*"]
   }
 
   filter {
@@ -33,9 +34,12 @@ data "aws_ami" "cloudcasts_web" {
 }
 
 
-variable infra_env {
-  type = string
-  description = "infrastructure environment"
+# variable infra_env {
+#   type = string
+#   description = "infrastructure environment"
+# }
+locals {
+  infra_env = terraform.workspace
 }
 
 variable default_region {
@@ -47,7 +51,7 @@ variable default_region {
 module "ec2_app" {
   source = "./modules/ec2"
 
-  infra_env = var.infra_env
+  infra_env = local.infra_env
   infra_role = "web"
   instance_type = "t3.small"
   instance_ami = data.aws_ami.cloudcasts_web.id
@@ -56,7 +60,7 @@ module "ec2_app" {
   subnets = module.vpc.vpc_public_subnets
   security_groups = [module.vpc.security_group_public]
   tags = { 
-    Name = "cloudcasts-${var.infra_env}-web"
+    Name = "cloudcasts-${local.infra_env}-web"
   }
   create_eip = true 
 }
@@ -64,7 +68,7 @@ module "ec2_app" {
 module "ec2_worker" {
   source = "./modules/ec2"
 
-  infra_env = var.infra_env
+  infra_env = local.infra_env
   infra_role = "worker"
   instance_type = "t3.xlarge"
   instance_ami = data.aws_ami.cloudcasts_web.id
@@ -74,7 +78,7 @@ module "ec2_worker" {
   subnets = module.vpc.vpc_private_subnets
   security_groups = [module.vpc.security_group_public]
   tags = { 
-    Name = "cloudcasts-${var.infra_env}-worker"
+    Name = "cloudcasts-${local.infra_env}-worker"
   }
   create_eip = false
 }
@@ -82,7 +86,7 @@ module "ec2_worker" {
 module "vpc" {
   source = "./modules/vpc"
 
-  infra_env = var.infra_env
+  infra_env = local.infra_env
   vpc_cidr = "10.0.0.0/17"
 
   azs = ["cn-northwest-1a", "cn-northwest-1b"]
