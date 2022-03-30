@@ -46,7 +46,7 @@ variable default_region {
 }
 
 module "ec2_app" {
-  source = "./modules/ec2"
+  source = "../modules/ec2"
 
   infra_env = var.infra_env
   infra_role = "web"
@@ -63,7 +63,7 @@ module "ec2_app" {
 }
 
 module "ec2_worker" {
-  source = "./modules/ec2"
+  source = "../modules/ec2"
 
   infra_env = var.infra_env
   infra_role = "worker"
@@ -81,7 +81,7 @@ module "ec2_worker" {
 }
 
 module "vpc" {
-  source = "./modules/vpc"
+  source = "../modules/vpc"
 
   infra_env = var.infra_env
   vpc_cidr = "10.0.0.0/17"
@@ -90,3 +90,5 @@ module "vpc" {
   public_subnets = slice(cidrsubnets("10.0.0.0/17", 4, 4, 4, 4), 0, 2)
   private_subnets = slice(cidrsubnets("10.0.0.0/17", 4, 4, 4, 4), 2, 4)
 }
+
+
